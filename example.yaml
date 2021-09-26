@@ -1,0 +1,38 @@
+questions:
+    # Define questions. 
+
+    password: 
+        # Question name, a reference ID that will never appear in final output
+        q: Please enter your unlocking password. # question hint
+        a: # question answer, either a string, or a dict of multiple answers
+
+            # By using multiple answers, a question may have different values.
+            # This is useful if you want to restrict the target audience by
+            # groups, e.g. send different groups with different answers by
+            # email.
+            1: b163cbf2fa06be0c25e4205b27003465d8ca428ddac5ce41461df8da5fe10e9d # for relatives
+            2: 0b25ae28db672d03d4417fa402f9ae9bfebddf98a08a0c5fa5411dbae1b6da21 # for colleagues
+    
+    my-name:
+        q: What is my name?
+        a: John Doe
+
+    my-birthday:
+        q: What is my birthday? (yyyy-mm-dd)
+        a: "1970-01-01"
+
+packets:
+
+    - depends:
+        - password=1
+      message: |
+        This is the message revealed as soon as one of my relatives types the
+        above code `b163...0e9d` into the field. This can be an intro-message.
+
+    - depends:
+        - password=2
+        - my-name
+        - my-birthday
+      message: |
+        More in-depth information about me. Viewer must know my name and
+        birthday.

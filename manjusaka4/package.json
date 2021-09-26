@@ -1,0 +1,16 @@
+{
+  "name": "manjusaka4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node src/index.js"
+  },
+  "author": "NeoAtlantis",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "openpgp": "^5.0.0"
+  }
+}
