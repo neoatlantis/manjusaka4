@@ -57,19 +57,96 @@ class QuestionCompiler {
         // { question: id, hint: ciphertext }
         if(!_.isString(this.q)){
             throw Error("Question hint must be a string.");
-        }
+        };
+        const plaintext = JSON.stringify({
+            hint: this.q,
+        });
+
         const encrypted = await openpgp.encrypt({
-            message: await openpgp.createMessage({ text: this.q }),
+            message: await openpgp.createMessage({ text: plaintext }),
             passwords: [ this.AK ],
         });
 
         return {
             "question": this.id,
-            "hint": encrypted,
+            "ciphertext": encrypted,
         }
     }
 
 }
+
+
+
+
+class PacketCompiler {
+
+    constructor(questions_compiled, depends, enables, message){
+        if(!enables) enables = [];
+        if(!depends) depends = [];
+        
+        // Resolve dependencies. Fetch from every dependent question the
+        // question id and the decryption key value.
+        const keyparts = [];
+        const depend_question_ids = [];
+        depends.forEach((spec)=>{
+            let { id, value } = this.resolve_dependency(
+                questions_compiled, spec);
+            depend_question_ids.push(id);
+            keyparts.push(value);
+        });
+
+        keyparts.sort();
+        this.secret = keyparts.join("::");
+
+        this.payload_depends = depend_question_ids;
+        this.payload_message = message;
+        this.payload_enables = _.zipObject(
+            enables.map((e)=>questions_compiled[e].id),
+            enables.map((e)=>questions_compiled[e].AK)
+        );
+    }
+
+    resolve_dependency(questions_compiled, spec){
+        // look up the decrypting key for that question
+        let ret = null, question_id = null;
+        if(spec.indexOf("=") >= 0){
+            let question_human_id = spec.split("=")[0];
+            let question_value_id = spec.split("=")[1];
+            ret = questions_compiled[question_human_id].value()[
+                question_value_id];
+            question_id = questions_compiled[question_human_id].id;
+        } else {
+            ret = questions_compiled[spec].value();
+            question_id = questions_compiled[spec].id;
+        }
+        if(!_.isString(ret) || !_.isString(question_id)){
+            throw Error("Dependency not resolved for: " + spec);
+        }
+        return { id: question_id, value: ret };
+    }
+
+    async compile(){
+        const plaintext = JSON.stringify({
+            enables: this.payload_enables,
+            message: this.payload_message,
+        });
+        const encrypted = await openpgp.encrypt({
+            message: await openpgp.createMessage({ text: plaintext }),
+            passwords: [ this.secret ],
+        });
+        return {
+            depends: this.payload_depends,
+            ciphertext: encrypted,
+        }
+    }
+
+
+}
+
+
+
+
+
 
 
 module.exports = async function(yamlstr){
@@ -84,12 +161,32 @@ module.exports = async function(yamlstr){
             questions[question_human_id].q,
             questions[question_human_id].a
         );
-
-        console.log(await questions_compiled[question_human_id].compile())
     }
 
+    
+    const packets_compiled = yamldoc.packets.map((packet)=>
+        new PacketCompiler(
+            questions_compiled,
+            packet.depends,
+            packet.enables,
+            packet.message
+    ));
 
-    return yamldoc;
+    const ret = {
+        questions: {},
+        packets: [],
+    }
+
+    for(let k in questions_compiled){
+        const { question, ciphertext } = await questions_compiled[k].compile();
+        ret.questions[question] = ciphertext;
+    }
+
+    for(let packet_compiler of packets_compiled){
+        ret.packets.push(await packet_compiler.compile());
+    }
+
+    return JSON.stringify(ret);
 
 
     

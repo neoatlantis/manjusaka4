@@ -23,14 +23,22 @@ questions:
 
 packets:
 
+    - enables:
+        - password
+      message: |
+        Welcome to read my messages. This is the boot up message.
+
+
     - depends:
         - password=1
+      enables:
+        - my-name
+        - my-birthday
       message: |
         This is the message revealed as soon as one of my relatives types the
         above code `b163...0e9d` into the field. This can be an intro-message.
 
     - depends:
-        - password=2
         - my-name
         - my-birthday
       message: |
