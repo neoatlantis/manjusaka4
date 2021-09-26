@@ -101,6 +101,7 @@ function runtime(/*DATA*/){
             if(message !== undefined){ messages.push(message); }
             if(enables === undefined) enables = {};
             for(let enabled_qid in enables){
+                console.log("enabling", enabled_qid);
                 if(!_.isString(questions_encrypted[enabled_qid])) continue;
                 let ak = enables[enabled_qid];
                 let decrypted_question = await decrypt_question(
@@ -122,7 +123,7 @@ function runtime(/*DATA*/){
         if(!_.has(questions_enabled, question_id)){
             throw Error("Invalid question id.");
         }
-        questions_enabled.answer = answer;
+        questions_enabled[question_id].answer = answer;
         loop();
     }
 }
