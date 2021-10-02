@@ -9,8 +9,9 @@
   "author": "NeoAtlantis",
   "license": "GPL-3.0",
   "dependencies": {
+    "asn1": "^0.2.4",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "openpgp": "^5.0.0"
+    "triplesec": "^4.0.3"
   }
 }

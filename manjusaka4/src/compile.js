@@ -1,7 +1,28 @@
-const openpgp = require("openpgp");
 const yaml = require("js-yaml");
 const crypto = require("crypto");
 const _ = require("lodash");
+const triplesec = require("triplesec");
+
+
+async function encrypt(key, data){
+    let keybuf = Buffer.from(key, "ascii");
+    keybuf = (new triplesec.hash.SHA512()).bufhash(keybuf);
+
+    let databuf = Buffer.from(data, "utf-8");
+
+    return new Promise((resolve, reject)=>{
+        triplesec.encrypt(
+            { key: keybuf, data: databuf },
+            function(err, val){
+                if(err) return reject(err);
+                resolve(val.toString("base64"));
+            }
+        );
+    });
+}
+
+
+
 
 class QuestionCompiler {
     
@@ -62,11 +83,7 @@ class QuestionCompiler {
             hint: this.q,
         });
 
-        const encrypted = await openpgp.encrypt({
-            message: await openpgp.createMessage({ text: plaintext }),
-            passwords: [ this.AK ],
-        });
-
+        const encrypted = await encrypt(this.AK, plaintext);
         return {
             "question": this.id,
             "ciphertext": encrypted,
@@ -130,10 +147,7 @@ class PacketCompiler {
             enables: this.payload_enables,
             message: this.payload_message,
         });
-        const encrypted = await openpgp.encrypt({
-            message: await openpgp.createMessage({ text: plaintext }),
-            passwords: [ this.secret ],
-        });
+        const encrypted = await encrypt(this.secret, plaintext);
         return {
             depends: this.payload_depends,
             ciphertext: encrypted,

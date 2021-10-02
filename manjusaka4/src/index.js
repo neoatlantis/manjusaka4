@@ -9,10 +9,19 @@ if(argv[0] == "compile"){
     const yamlstr = require("fs").readFileSync(argv[1]);
     console.log(await compiler(yamlstr));
 
-
     return;
 }
 
+
+if(argv[0] == "runtime"){
+    const runtime = require("./runtime");
+
+    const jsonstr = require("fs").readFileSync(argv[1]);
+    console.log(jsonstr);
+    console.log(await runtime(jsonstr));
+
+    return;
+}
 
 
 

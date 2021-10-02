@@ -1,5 +1,26 @@
-const openpgp = require("openpgp");
 const _ = require("lodash");
+const triplesec = require("triplesec");
+
+
+async function decrypt(key, data){
+    let keybuf = Buffer.from(key, "ascii");
+    keybuf = (new triplesec.hash.SHA512()).bufhash(keybuf);
+
+    let databuf = Buffer.from(data, "base64");
+
+    return new Promise((resolve, reject)=>{
+        triplesec.decrypt(
+            { key: keybuf, data: databuf },
+            function(err, val){
+                if(err) return reject(err);
+                resolve(val.toString("utf-8"));
+            }
+        );
+    });
+}
+
+
+
 
 
 async function decrypt_packet(ciphertext, dependency, question_answers){
@@ -11,14 +32,7 @@ async function decrypt_packet(ciphertext, dependency, question_answers){
     const key = keyparts.join("::");
 
     try{
-        const encrypted_message = await openpgp.readMessage({
-            armoredMessage: ciphertext
-        });
-        const { data: decrypted } = await openpgp.decrypt({
-            message: encrypted_message,
-            passwords: [key],
-        });
-
+        const decrypted = await decrypt(key, ciphertext);
         return JSON.parse(decrypted);
     } catch(e){
         console.error(e);
@@ -28,17 +42,9 @@ async function decrypt_packet(ciphertext, dependency, question_answers){
 
 async function decrypt_question(ciphertext, authentication_key){
     try{
-        const encrypted_message = await openpgp.readMessage({
-            armoredMessage: ciphertext
-        });
-        const { data: decrypted } = await openpgp.decrypt({
-            message: encrypted_message,
-            passwords: [authentication_key],
-        });
-
+        const decrypted = await decrypt(authentication_key, ciphertext);
         const decrypted_question = JSON.parse(decrypted);
         decrypted_question.AK = authentication_key;
-
         return decrypted_question;
     } catch(e){
         console.error(e);
