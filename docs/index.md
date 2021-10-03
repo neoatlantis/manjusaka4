@@ -26,6 +26,7 @@ To begin, try out this [demo](./demo.html). It's configured with data (in
 format of [YAML](https://yaml.org/spec/)) from
 [this example](https://github.com/neoatlantis/manjusaka4/blob/master/example.yaml).
 The example config should be fairly self-explanatory.
+**Read the example config and look for correct answers in demo!**
 
 If you want to build your own Manjusaka file, use above demo and choose the
 first link. Paste your own YAML file in, and click "compile". Your HTML is
