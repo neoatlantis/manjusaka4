@@ -11,8 +11,8 @@ Some features:
 * User may leave multiple messages in one file.
 * Each message is decrypted based on correct answers to a few dependent
   questions.
-* Messages can be revealed progressively. Previous messages decrypted enables
-  further steps. Otherwise no more decrytion is possible.
+* Messages can be revealed progressively. Previous messages decrypted enable
+  further steps. Otherwise no more decryption is possible.
 * A question may have multiple answers. Above progress can be made with
   branches: e.g. for different target groups, they may only view a subset of
   all messages.
