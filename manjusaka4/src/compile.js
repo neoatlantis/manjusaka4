@@ -5,7 +5,7 @@ const triplesec = require("triplesec");
 
 
 async function encrypt(key, data){
-    let keybuf = Buffer.from(key, "ascii");
+    let keybuf = Buffer.from(key.normalize("NFD"), "utf-8");
     keybuf = (new triplesec.hash.SHA512()).bufhash(keybuf);
 
     let databuf = Buffer.from(data, "utf-8");

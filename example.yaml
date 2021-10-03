@@ -10,8 +10,8 @@ questions:
             # This is useful if you want to restrict the target audience by
             # groups, e.g. send different groups with different answers by
             # email.
-            1: b163cbf2fa06be0c25e4205b27003465d8ca428ddac5ce41461df8da5fe10e9d # for relatives
-            2: 0b25ae28db672d03d4417fa402f9ae9bfebddf98a08a0c5fa5411dbae1b6da21 # for colleagues
+            1: b163cbf2 # for relatives
+            2: 0b25ae28 # for colleagues
     
     my-name:
         q: What is my name?
@@ -23,11 +23,24 @@ questions:
 
 packets:
 
+    # the boot message
     - enables:
         - password
       message: |
-        Welcome to read my messages. This is the boot up message.
+        Welcome to use Manjusaka 4! This demo will show you how this system
+        works. By now you should see a password prompt. Type either `b163cbf2`
+        or `0b25ae28` (only the alphanumeric characters) in the box.
 
+    - depends:
+        - password=2
+      message: |
+        This is the message if one have entered `0b25ae28` as password above.
+        If I send this code only to my colleagues, then they will now be able
+        to read this message. Although this Manjusaka file contains more
+        messages, they are unable to continue since no more questions to those
+        messages are unlocked.
+
+        Try refresh the page and enter the other code as password above.
 
     - depends:
         - password=1
@@ -35,8 +48,13 @@ packets:
         - my-name
         - my-birthday
       message: |
-        This is the message revealed as soon as one of my relatives types the
-        above code `b163...0e9d` into the field. This can be an intro-message.
+        I intend to send the code `b163cbf2` to my relatives. If this is the
+        only code they will know, then I may leave a message here for them.
+        As you see, there should be more questions prompted now. These are
+        previously hidden (encrypted) questions. Only when someone has read
+        this message will they continue.
+        
+        Try refresh the page and enter the other code as password above.
 
     - depends:
         - my-name

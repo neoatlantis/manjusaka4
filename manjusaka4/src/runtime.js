@@ -3,7 +3,7 @@ const triplesec = require("triplesec");
 
 
 async function decrypt(key, data){
-    let keybuf = Buffer.from(key, "ascii");
+    let keybuf = Buffer.from(key.normalize("NFD"), "utf-8");
     keybuf = (new triplesec.hash.SHA512()).bufhash(keybuf);
 
     let databuf = Buffer.from(data, "base64");
@@ -125,12 +125,12 @@ function runtime(/*DATA*/){
 
     loop();
 
-    return function set_answer(question_id, answer){
+    return async function set_answer(question_id, answer){
         if(!_.has(questions_enabled, question_id)){
             throw Error("Invalid question id.");
         }
         questions_enabled[question_id].answer = answer;
-        loop();
+        await loop();
     }
 }
 
